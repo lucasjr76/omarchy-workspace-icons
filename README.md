@@ -14,12 +14,34 @@ kept as an option, not the default.
 It is a drop-in alternative to the built-in `omarchy.workspaces` widget: same
 click-to-focus behaviour, plus scroll-to-switch and a tooltip listing the apps.
 
+## Requirements
+
+Omarchy 4 or newer, which is where the bar became a Quickshell shell with
+plugin support. No dependency beyond what Omarchy already ships: the widget
+uses `Quickshell.Hyprland` for workspace state, `QtQuick.Effects` for the
+grayscale pass, and the shell's own icon index to resolve app icons.
+
 ## Install
 
 ```bash
 omarchy plugin add https://github.com/lucasjr76/omarchy-workspace-icons.git --enable
 omarchy plugin disable omarchy.workspaces   # optional: replace the stock one
 ```
+
+## Uninstall
+
+```bash
+omarchy plugin remove lucasjr76.workspace-icons
+omarchy plugin enable omarchy.workspaces     # if you had disabled the stock one
+```
+
+Removal takes the widget out of `~/.config/omarchy/shell.json` and deletes
+`~/.config/omarchy/plugins/lucasjr76.workspace-icons/`. Nothing is written
+anywhere else.
+
+## License
+
+MIT — see [LICENSE](LICENSE).
 
 ## Settings
 
