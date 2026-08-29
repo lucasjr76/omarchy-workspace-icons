@@ -1,0 +1,188 @@
+{
+  "schemaVersion": 1,
+  "id": "lucasjr76.workspace-icons",
+  "name": "Workspace Icons",
+  "version": "0.2.0",
+  "author": "lucasjr76",
+  "license": "MIT",
+  "description": "Workspace indicators that pair each workspace number with the icons of the apps open on it.",
+  "kinds": [
+    "bar-widget"
+  ],
+  "entryPoints": {
+    "barWidget": "Widget.qml"
+  },
+  "barWidget": {
+    "displayName": "Workspace Icons",
+    "description": "Workspace numbers with the icons of their open apps next to them.",
+    "category": "Compositor",
+    "allowMultiple": false,
+    "defaultSection": "left",
+    "defaults": {
+      "layout": "beside",
+      "minWorkspaces": 5,
+      "maxIcons": 3,
+      "iconSize": 15,
+      "iconOpacity": 100,
+      "inactiveIconOpacity": 80,
+      "iconGrayscale": "inactive",
+      "groupSpacing": 10,
+      "numberScale": 125,
+      "numberOpacityOccupied": 100,
+      "numberOpacityEmpty": 45,
+      "numberBold": true,
+      "showNumber": "always",
+      "unknownIcons": "generic",
+      "hideEmpty": false,
+      "scrollToSwitch": true
+    },
+    "schema": [
+      {
+        "key": "layout",
+        "type": "enum",
+        "label": "Layout",
+        "options": [
+          "overlay",
+          "beside"
+        ],
+        "defaultValue": "beside",
+        "description": "beside: number then icons, the readable one. overlay: icons drawn on top of the number."
+      },
+      {
+        "key": "minWorkspaces",
+        "type": "integer",
+        "label": "Always show this many workspaces",
+        "min": 1,
+        "max": 10,
+        "step": 1,
+        "defaultValue": 5
+      },
+      {
+        "key": "groupSpacing",
+        "type": "integer",
+        "label": "Gap between workspaces (px)",
+        "min": 0,
+        "max": 30,
+        "step": 1,
+        "defaultValue": 10,
+        "description": "Keep this clearly wider than the gap between icons, or the icons stop reading as belonging to their number."
+      },
+      {
+        "key": "maxIcons",
+        "type": "integer",
+        "label": "Max icons per workspace",
+        "min": 1,
+        "max": 6,
+        "step": 1,
+        "defaultValue": 3
+      },
+      {
+        "key": "iconSize",
+        "type": "integer",
+        "label": "Icon size (px)",
+        "min": 8,
+        "max": 32,
+        "step": 1,
+        "defaultValue": 15
+      },
+      {
+        "key": "iconOpacity",
+        "type": "integer",
+        "label": "Icon opacity on the focused workspace (%)",
+        "min": 10,
+        "max": 100,
+        "step": 5,
+        "defaultValue": 100
+      },
+      {
+        "key": "inactiveIconOpacity",
+        "type": "integer",
+        "label": "Icon opacity on other workspaces (%)",
+        "min": 10,
+        "max": 100,
+        "step": 5,
+        "defaultValue": 80
+      },
+      {
+        "key": "iconGrayscale",
+        "type": "enum",
+        "label": "Grayscale icons",
+        "options": [
+          "inactive",
+          "always",
+          "never"
+        ],
+        "defaultValue": "inactive",
+        "description": "inactive: colour only on the focused workspace. always: never any colour. never: always in colour."
+      },
+      {
+        "key": "showNumber",
+        "type": "enum",
+        "label": "Workspace number",
+        "options": [
+          "always",
+          "empty-only"
+        ],
+        "defaultValue": "always",
+        "description": "empty-only: hide the number once a workspace has apps, leaving just the icons."
+      },
+      {
+        "key": "numberScale",
+        "type": "integer",
+        "label": "Number size (% of bar font)",
+        "min": 100,
+        "max": 320,
+        "step": 10,
+        "defaultValue": 125
+      },
+      {
+        "key": "numberOpacityOccupied",
+        "type": "integer",
+        "label": "Number opacity when the workspace has apps (%)",
+        "min": 0,
+        "max": 100,
+        "step": 2,
+        "defaultValue": 100
+      },
+      {
+        "key": "numberOpacityEmpty",
+        "type": "integer",
+        "label": "Number opacity when the workspace is empty (%)",
+        "min": 0,
+        "max": 100,
+        "step": 5,
+        "defaultValue": 45
+      },
+      {
+        "key": "numberBold",
+        "type": "boolean",
+        "label": "Bold number",
+        "defaultValue": true
+      },
+      {
+        "key": "unknownIcons",
+        "type": "enum",
+        "label": "Apps with no icon",
+        "options": [
+          "generic",
+          "hide"
+        ],
+        "defaultValue": "generic",
+        "description": "generic: fall back to a placeholder icon. hide: show only the number."
+      },
+      {
+        "key": "hideEmpty",
+        "type": "boolean",
+        "label": "Hide empty workspaces beyond the minimum",
+        "defaultValue": false
+      },
+      {
+        "key": "scrollToSwitch",
+        "type": "boolean",
+        "label": "Scroll over the widget to switch workspaces",
+        "defaultValue": true
+      }
+    ]
+  },
+  "homepage": "https://github.com/lucasjr76/omarchy-workspace-icons"
+}
