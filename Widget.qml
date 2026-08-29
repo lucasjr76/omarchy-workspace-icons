@@ -31,7 +31,7 @@ BarWidget {
   readonly property bool hideUnknownIcons: String(root.setting("unknownIcons", "generic")) === "hide"
   readonly property bool hideEmpty: root.setting("hideEmpty", false) === true
   readonly property bool scrollToSwitch: root.setting("scrollToSwitch", true) === true
-  readonly property int refreshSeconds: Math.max(0, Math.min(300, Number(root.setting("refreshInterval", 10))))
+  readonly property int refreshSeconds: Math.max(0, Math.min(300, Number(root.setting("refreshInterval", 0))))
   readonly property bool debugLogging: root.setting("debug", false) === true
 
   readonly property bool besideLayout: root.layoutMode === "beside"
@@ -202,9 +202,9 @@ BarWidget {
     onTriggered: root.refreshHyprland()
   }
 
-  // Belt and braces. Events should be enough, but a missed one used to mean a
-  // workspace stayed wrong until the next restart; now it self-heals within
-  // one interval. One socket round trip, so the cost is noise.
+  // Off by default: across every measurement the toplevel model was correct,
+  // so polling for staleness would be guarding a bug that was never observed.
+  // Kept as a valve in case a missed event ever does strand a workspace.
   Timer {
     running: root.refreshSeconds > 0
     interval: root.refreshSeconds * 1000
@@ -220,8 +220,17 @@ BarWidget {
     onTriggered: {
       var ids = root.workspaceIds()
       var parts = []
-      for (var i = 0; i < ids.length; i++) parts.push(ids[i] + ":" + root.workspaceApps(ids[i]).join(","))
-      console.log("workspace-icons hyprTl=" + (Hyprland.toplevels.values || []).length + " | " + parts.join("  "))
+      for (var i = 0; i < ids.length; i++) parts.push(ids[i] + ":[" + root.workspaceApps(ids[i]).join(",") + "]")
+      var all = Hyprland.toplevels.values || []
+      var raw = []
+      for (var k = 0; k < all.length; k++) {
+        var t = all[k], ws = "?", wl = "?", ipc = "?"
+        try { ws = t.workspace ? String(t.workspace.id) : "NULLWS" } catch (e) { ws = "ERR" }
+        try { wl = t.wayland ? String(t.wayland.appId) : "NULLWAYLAND" } catch (e) { wl = "ERR" }
+        try { ipc = t.lastIpcObject ? String(t.lastIpcObject["class"]) : "NULLIPC" } catch (e) { ipc = "ERR" }
+        raw.push("ws" + ws + "/" + wl + "/" + ipc)
+      }
+      console.log("WSDBG tl=" + all.length + " | " + parts.join(" ") + " | RAW " + raw.join(" ; "))
     }
   }
 
@@ -386,16 +395,24 @@ BarWidget {
                   // iconRevision is read so the binding re-runs once the
                   // desktop entry list and the shell icon index finish loading.
                   source: root.iconRevision >= 0 ? root.iconSourceFor(slot.modelData) : ""
-                  visible: !cell.grayscale
-                  // Kept as a hidden layer so the effect can sample it.
-                  layer.enabled: cell.grayscale
+                  // Always a hidden layer feeding the effect below. Toggling
+                  // layer.enabled to switch grayscale on and off tears down the
+                  // texture the effect samples, and it can come back invalid —
+                  // the icon then renders as nothing until something forces the
+                  // delegate to rebuild. Saturation carries the whole state
+                  // instead, so nothing is created or destroyed on focus change.
+                  visible: false
+                  layer.enabled: true
                 }
 
                 MultiEffect {
                   anchors.fill: iconImage
                   source: iconImage
-                  visible: cell.grayscale
-                  saturation: -1.0
+                  saturation: cell.grayscale ? -1.0 : 0.0
+
+                  Behavior on saturation {
+                    NumberAnimation { duration: 160; easing.type: Easing.OutCubic }
+                  }
                 }
 
                 Behavior on opacity {

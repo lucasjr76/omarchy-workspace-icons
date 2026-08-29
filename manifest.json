@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "id": "lucasjr76.workspace-icons",
   "name": "Workspace Icons",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "author": "lucasjr76",
   "license": "MIT",
   "description": "Workspace indicators that pair each workspace number with the icons of the apps open on it.",
@@ -35,7 +35,7 @@
       "unknownIcons": "generic",
       "hideEmpty": false,
       "scrollToSwitch": true,
-      "refreshInterval": 10,
+      "refreshInterval": 0,
       "debug": false
     },
     "schema": [
@@ -191,8 +191,8 @@
         "min": 0,
         "max": 300,
         "step": 5,
-        "defaultValue": 10,
-        "description": "Re-reads the Hyprland window list on a timer so a missed event cannot leave a workspace wrong. 0 disables it."
+        "defaultValue": 0,
+        "description": "Re-reads the Hyprland window list on a timer, as a safety valve. 0 (default) disables it; events keep the model current on their own."
       },
       {
         "key": "debug",
