@@ -31,6 +31,8 @@ BarWidget {
   readonly property bool hideUnknownIcons: String(root.setting("unknownIcons", "generic")) === "hide"
   readonly property bool hideEmpty: root.setting("hideEmpty", false) === true
   readonly property bool scrollToSwitch: root.setting("scrollToSwitch", true) === true
+  readonly property int refreshSeconds: Math.max(0, Math.min(300, Number(root.setting("refreshInterval", 10))))
+  readonly property bool debugLogging: root.setting("debug", false) === true
 
   readonly property bool besideLayout: root.layoutMode === "beside"
 
@@ -41,14 +43,6 @@ BarWidget {
   }
 
   // ------------------------------------------------------------ workspaces
-  function workspaceById(id) {
-    var values = Hyprland.workspaces.values
-    for (var i = 0; i < values.length; i++) {
-      if (values[i].id === id) return values[i]
-    }
-    return null
-  }
-
   function workspaceIds() {
     var ids = []
     for (var n = 1; n <= root.minWorkspaces; n++) ids.push(n)
@@ -58,7 +52,7 @@ BarWidget {
       var id = values[i].id
       if (id <= 0 || id > 10) continue
       if (ids.indexOf(id) !== -1) continue
-      if (root.hideEmpty && values[i].toplevels.values.length === 0) continue
+      if (root.hideEmpty && root.workspaceApps(id).length === 0) continue
       ids.push(id)
     }
 
@@ -91,22 +85,35 @@ BarWidget {
     return ""
   }
 
-  // Distinct app ids on a workspace, in stacking order, capped at maxIcons.
-  function workspaceApps(workspace) {
-    if (!workspace) return []
-    var toplevels = []
-    try { toplevels = workspace.toplevels.values || [] } catch (e) { return [] }
+  // Distinct app ids per workspace, in stacking order, capped at maxIcons.
+  //
+  // Built from the flat Hyprland.toplevels list rather than from each
+  // workspace's own toplevels collection: one source, one place for the model
+  // to go stale, and it survives a workspace object being replaced underneath
+  // us. Reading t.workspace inside the binding is what makes a window moved
+  // between workspaces re-evaluate this.
+  readonly property var appsByWorkspace: {
+    var map = ({})
+    var all = []
+    try { all = Hyprland.toplevels.values || [] } catch (e) { return map }
 
-    var out = []
-    var seen = ({})
-    for (var i = 0; i < toplevels.length; i++) {
-      var appId = root.appIdOf(toplevels[i])
-      if (appId.length === 0 || seen[appId] === true) continue
-      seen[appId] = true
-      out.push(appId)
-      if (out.length >= root.maxIcons) break
+    for (var i = 0; i < all.length; i++) {
+      var workspace = null
+      try { workspace = all[i].workspace } catch (e) {}
+      if (!workspace) continue
+
+      var appId = root.appIdOf(all[i])
+      if (appId.length === 0) continue
+
+      var id = workspace.id
+      if (map[id] === undefined) map[id] = []
+      if (map[id].length < root.maxIcons && map[id].indexOf(appId) === -1) map[id].push(appId)
     }
-    return out
+    return map
+  }
+
+  function workspaceApps(id) {
+    return root.appsByWorkspace[id] || []
   }
 
   // Bumped whenever the desktop-entry set or the shell's icon index changes,
@@ -195,6 +202,29 @@ BarWidget {
     onTriggered: root.refreshHyprland()
   }
 
+  // Belt and braces. Events should be enough, but a missed one used to mean a
+  // workspace stayed wrong until the next restart; now it self-heals within
+  // one interval. One socket round trip, so the cost is noise.
+  Timer {
+    running: root.refreshSeconds > 0
+    interval: root.refreshSeconds * 1000
+    repeat: true
+    onTriggered: root.refreshHyprland()
+  }
+
+  // Opt-in tracing for when the bar disagrees with `hyprctl clients`.
+  Timer {
+    running: root.debugLogging
+    interval: 2500
+    repeat: true
+    onTriggered: {
+      var ids = root.workspaceIds()
+      var parts = []
+      for (var i = 0; i < ids.length; i++) parts.push(ids[i] + ":" + root.workspaceApps(ids[i]).join(","))
+      console.log("workspace-icons hyprTl=" + (Hyprland.toplevels.values || []).length + " | " + parts.join("  "))
+    }
+  }
+
   Connections {
     target: Hyprland
     function onRawEvent(event) {
@@ -262,8 +292,7 @@ BarWidget {
         id: cell
         required property int modelData
 
-        readonly property var workspace: root.workspaceById(modelData)
-        readonly property var apps: root.workspaceApps(workspace)
+        readonly property var apps: root.workspaceApps(modelData)
         readonly property bool occupied: apps.length > 0
         readonly property bool focused: Hyprland.focusedWorkspace !== null && Hyprland.focusedWorkspace.id === modelData
 

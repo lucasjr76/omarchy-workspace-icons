@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "id": "lucasjr76.workspace-icons",
   "name": "Workspace Icons",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "author": "lucasjr76",
   "license": "MIT",
   "description": "Workspace indicators that pair each workspace number with the icons of the apps open on it.",
@@ -34,7 +34,9 @@
       "showNumber": "always",
       "unknownIcons": "generic",
       "hideEmpty": false,
-      "scrollToSwitch": true
+      "scrollToSwitch": true,
+      "refreshInterval": 10,
+      "debug": false
     },
     "schema": [
       {
@@ -181,6 +183,23 @@
         "type": "boolean",
         "label": "Scroll over the widget to switch workspaces",
         "defaultValue": true
+      },
+      {
+        "key": "refreshInterval",
+        "type": "integer",
+        "label": "Self-heal interval (seconds)",
+        "min": 0,
+        "max": 300,
+        "step": 5,
+        "defaultValue": 10,
+        "description": "Re-reads the Hyprland window list on a timer so a missed event cannot leave a workspace wrong. 0 disables it."
+      },
+      {
+        "key": "debug",
+        "type": "boolean",
+        "label": "Log workspace contents",
+        "defaultValue": false,
+        "description": "Prints what the widget thinks each workspace holds, for comparing against `hyprctl clients`."
       }
     ]
   },
