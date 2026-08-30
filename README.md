@@ -1,5 +1,7 @@
 # Workspace Icons
 
+![Workspace Icons in the Omarchy bar: workspace 1 holds Brave and a terminal, the focused workspace 2 holds Firefox and a settings app in full colour, workspaces 3 to 5 are empty](preview.png)
+
 An Omarchy shell bar widget that pairs each workspace **number** with the
 **icons of the apps open on that workspace**, grouped so the eye can tell which
 icons belong to which number.
