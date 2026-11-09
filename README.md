@@ -16,6 +16,11 @@ kept as an option, not the default.
 It is a drop-in alternative to the built-in `omarchy.workspaces` widget: same
 click-to-focus behaviour, plus scroll-to-switch and a tooltip listing the apps.
 
+Like the built-in widget, it follows Omarchy's per-monitor workspaces: each
+monitor owns its own workspaces 1-10 (Hyprland ids 1-10, 11-20, and so on), and
+each bar shows its own monitor's set, numbered 1-10. Workspaces parked on a
+monitor while their own is unplugged are listed after its own.
+
 ## Requirements
 
 Omarchy 4 or newer, which is where the bar became a Quickshell shell with

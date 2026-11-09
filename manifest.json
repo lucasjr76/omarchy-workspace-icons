@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "id": "lucasjr76.workspace-icons",
   "name": "Workspace Icons",
-  "version": "0.3.1",
+  "version": "0.4.0",
   "author": "lucasjr76",
   "license": "MIT",
   "description": "Workspace indicators that pair each workspace number with the icons of the apps open on it.",
